@@ -115,6 +115,8 @@
 	var/ooc_notes
 	var/flavor_text
 	var/silicon_flavor_text
+	var/list/headshot_links = list()
+	var/list/headshot_naked_links = list()
 
 /datum/mind/New(key)
 	skill_holder = new(src)
@@ -649,6 +651,7 @@ GLOBAL_LIST(objective_player_choices)
 		/datum/objective/custom,
 		/datum/objective/assassinate/once,
 		/datum/objective/protect,
+		/datum/objective/breakout,
 		/datum/objective/escape,
 		/datum/objective/survive,
 		/datum/objective/martyr,
@@ -668,6 +671,7 @@ GLOBAL_LIST(objective_choices)
 	var/list/allowed_types = list(
 		/datum/objective/custom,
 		/datum/objective/assassinate,
+		/datum/objective/assassinate/internal,
 		/datum/objective/assassinate/once,
 		/datum/objective/maroon,
 		/datum/objective/debrain,
@@ -683,6 +687,7 @@ GLOBAL_LIST(objective_choices)
 		/datum/objective/nuclear/revert,
 		/datum/objective/absorb,
 		/datum/objective/rescue_prisoner,
+		/datum/objective/breakout,
 		/datum/objective/custom
 		)
 
@@ -1886,6 +1891,18 @@ GLOBAL_LIST(objective_choices)
 		mind.ooc_notes = client?.prefs.features["ooc_notes"]
 		mind.flavor_text = client?.prefs.features["flavor_text"]
 		mind.silicon_flavor_text = client?.prefs.features["silicon_flavor_text"]
+		mind.headshot_links = list(
+			client?.prefs.features["headshot_link"],
+			client?.prefs.features["headshot_link1"],
+			client?.prefs.features["headshot_link2"]
+		)
+		listclearnulls(mind.headshot_links)
+		mind.headshot_naked_links = list(
+			client?.prefs.features["headshot_naked_link"],
+			client?.prefs.features["headshot_naked_link1"],
+			client?.prefs.features["headshot_naked_link2"]
+		)
+		listclearnulls(mind.headshot_naked_links)
 
 //HUMAN
 /mob/living/carbon/human/mind_initialize()

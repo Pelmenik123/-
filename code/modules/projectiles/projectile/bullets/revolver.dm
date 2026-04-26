@@ -77,12 +77,14 @@
 
 /obj/item/projectile/bullet/c38/trac
 	name = ".38 TRAC bullet"
-	damage = 10
+	damage = 5
 	ricochets_max = 0
 
 /obj/item/projectile/bullet/c38/trac/on_hit(atom/target, blocked = FALSE)
 	. = ..()
 	var/mob/living/carbon/M = target
+	if(!istype(M))
+		return
 	var/obj/item/implant/tracking/c38/imp
 	for(var/obj/item/implant/tracking/c38/TI in M.implants) //checks if the target already contains a tracking implant
 		imp = TI
@@ -151,6 +153,11 @@
 	embedding = list(embed_chance=90, fall_chance=2, jostle_chance=5, ignore_throwspeed_threshold=TRUE, pain_stam_pct=0.4, pain_mult=5, jostle_pain_mult=6, rip_time=10)
 	wound_falloff_tile = -1
 	embed_falloff_tile = -5
+
+/obj/item/projectile/bullet/a357/requiem
+	name = "12.7x55mm bullet"
+	wound_bonus = 100
+	bare_wound_bonus = 100
 
 //.45-70 GOVT (Gunslinger's Derringer)
 //0bserver here. For all that is holy, do me a flavor, and do NOT allow people easy access to this ammo. This is meant for extremely lucky traitors, and nuclear operatives.

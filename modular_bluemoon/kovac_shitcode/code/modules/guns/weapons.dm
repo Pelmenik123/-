@@ -136,6 +136,7 @@
 /obj/item/ammo_box/magazine/m10mm_large
 	name = "enlarged pistol magazine (10mm)"
 	desc = "An extra ammo gun magazine."
+	icon = 'icons/obj/ammo.dmi'
 	icon_state = "c20r45-16"
 	ammo_type = /obj/item/ammo_casing/c10mm
 	caliber = "10mm"
@@ -359,7 +360,7 @@
 	slot_flags = ITEM_SLOT_BELT
 
 /obj/item/inteq_sledgehammer/toy/ComponentInitialize()
-	AddComponent(/datum/component/two_handed, force_unwielded=1, force_wielded=1, icon_wielded="sledgehammer1")
+	AddComponent(/datum/component/two_handed, force_unwielded=0, force_wielded=0, icon_wielded="sledgehammer1")
 
 /obj/item/inteq_sledgehammer/toy/attack(mob/M, mob/user)
 	if(iscarbon(M))

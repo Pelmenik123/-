@@ -313,6 +313,9 @@
 
 /datum/gas_reaction/genericfire/react(datum/gas_mixture/air, datum/holder)
 	var/temperature = air.return_temperature()
+	var/turf/loc_turf = get_turf(holder)
+	// Mining/lavaland Z: N2 is not fuel here — removes only the generic N2+O2 (air) burn; methane etc. unchanged.
+	var/lavaland_block_n2 = loc_turf && is_mining_level(loc_turf.z)
 	var/list/oxidation_temps = GLOB.gas_data.oxidation_temperatures
 	var/list/oxidation_rates = GLOB.gas_data.oxidation_rates
 	var/oxidation_power = 0
@@ -333,6 +336,8 @@
 		else
 			var/fuel_temp = fuel_temps[G]
 			if(fuel_temp && fuel_temp > temperature)
+				if(lavaland_block_n2 && G == GAS_N2)
+					continue
 				var/amt = (air.get_moles(G) / fuel_rates[G]) * max(0, 1-(temperature / fuel_temp))
 				fuels[G] = amt // we have to calculate the actual amount we're using after we get all oxidation together
 				total_fuel += amt
@@ -731,21 +736,35 @@
 
 /datum/gas_reaction/nitric_oxide/react(datum/gas_mixture/air, datum/holder)
 	var/nitric = air.get_moles(GAS_NITRIC)
+	if(nitric <= 0)
+		return NO_REACTION
 	var/oxygen = air.get_moles(GAS_O2)
-	var/max_amount = max(nitric / 8, MINIMUM_MOLE_COUNT)
+	// Must never exceed current nitric: max(nitric/8, MINIMUM_MOLE_COUNT) alone can be > nitric (float / edge cases),
+	// which would drive moles negative and crash auxmos (native illegal op).
+	var/max_amount = min(nitric, max(nitric / 8, MINIMUM_MOLE_COUNT))
 	var/enthalpy = air.return_temperature() * (air.heat_capacity() + R_IDEAL_GAS_EQUATION * air.total_moles())
 	var/list/enthalpies = GLOB.gas_data.enthalpies
 	if(oxygen > MINIMUM_MOLE_COUNT)
-		var/reaction_amount = min(max_amount, oxygen)/4
-		air.adjust_moles(GAS_NITRIC, -reaction_amount*2)
-		air.adjust_moles(GAS_O2, -reaction_amount)
-		air.adjust_moles(GAS_NITRYL, reaction_amount*2)
-		enthalpy += (reaction_amount * -(enthalpies[GAS_NITRIC] - enthalpies[GAS_NITRYL]))
-	air.adjust_moles(GAS_NITRIC, -max_amount)
-	air.adjust_moles(GAS_O2, max_amount * 0.5)
-	air.adjust_moles(GAS_N2, max_amount * 0.5)
-	enthalpy += max_amount * -enthalpies[GAS_NITRIC]
-	air.set_temperature(enthalpy/(air.heat_capacity() + R_IDEAL_GAS_EQUATION * air.total_moles()))
+		var/reaction_amount = min(max_amount, oxygen) / 4
+		// Second guard: do not remove more nitric than present (ordering vs other reactions).
+		var/nitric_take = min(reaction_amount * 2, air.get_moles(GAS_NITRIC))
+		reaction_amount = nitric_take * 0.5
+		if(reaction_amount > 0)
+			air.adjust_moles(GAS_NITRIC, -reaction_amount * 2)
+			air.adjust_moles(GAS_O2, -reaction_amount)
+			air.adjust_moles(GAS_NITRYL, reaction_amount * 2)
+			enthalpy += (reaction_amount * -(enthalpies[GAS_NITRIC] - enthalpies[GAS_NITRYL]))
+	var/decomp_amount = min(max_amount, air.get_moles(GAS_NITRIC))
+	if(decomp_amount > 0)
+		air.adjust_moles(GAS_NITRIC, -decomp_amount)
+		air.adjust_moles(GAS_O2, decomp_amount * 0.5)
+		air.adjust_moles(GAS_N2, decomp_amount * 0.5)
+		enthalpy += decomp_amount * -enthalpies[GAS_NITRIC]
+	var/denom = air.heat_capacity() + R_IDEAL_GAS_EQUATION * air.total_moles()
+	if(denom > MINIMUM_HEAT_CAPACITY)
+		var/new_temp = enthalpy / denom
+		if(isnum(new_temp) && new_temp > TCMB)
+			air.set_temperature(new_temp)
 	return REACTING
 
 /datum/gas_reaction/hagedorn

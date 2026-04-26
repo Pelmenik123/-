@@ -872,7 +872,7 @@ B --><-- A
 		return
 
 	if(!x_dimension || !y_dimension)
-		return
+		return I
 
 	if((x_dimension == world.icon_size) && (y_dimension == world.icon_size))
 		return I
@@ -1483,12 +1483,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 	return pick(typesof(/obj/item/reagent_containers/food/snacks) - blocked)
 
 /proc/get_random_drink()
-	var/list/blocked = list(/obj/item/reagent_containers/food/drinks/soda_cans,
-		/obj/item/reagent_containers/food/drinks/bottle,
-		/obj/item/reagent_containers/food/drinks/flask/russian,
-		/obj/item/reagent_containers/food/drinks/flask/steel
-		)
-	return pick(subtypesof(/obj/item/reagent_containers/food/drinks) - blocked)
+	return /obj/item/reagent_containers/food/drinks/drinkingglass/filled/random_ethanol
 
 /proc/get_random_drug()
     var/list/drugs = subtypesof(/obj/item/reagent_containers/syringe/contraband)
@@ -1605,7 +1600,11 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 /proc/generate_items_inside(list/items_list, where_to)
 	for(var/each_item in items_list)
-		for(var/i in 1 to items_list[each_item])
+		var/count = items_list[each_item]
+		if(isnum(count))
+			for(var/i in 1 to count)
+				new each_item(where_to)
+		else
 			new each_item(where_to)
 
 //Checks to see if either the victim has a garlic necklace or garlic in their blood

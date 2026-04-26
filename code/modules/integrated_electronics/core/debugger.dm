@@ -1,7 +1,6 @@
 /obj/item/integrated_electronics/debugger
 	name = "circuit debugger"
-	desc = "This small tool allows one working with custom machinery to directly set data to a specific pin, useful for writing \
-	settings to specific circuits, or for debugging purposes.  It can also pulse activation pins."
+	desc = "Этот небольшой инструмент позволяет устанавливать свои значения в пины, а также активировать платы."
 	icon = 'icons/obj/assemblies/electronic_tools.dmi'
 	icon_state = "debugger"
 	flags_1 = CONDUCT_1
@@ -47,8 +46,10 @@
 			to_chat(user, "<span class='notice'>You turn \the [src]'s value copier on.  Use it on a pin \
 			to save its current value in memory.</span>")
 		if("null")
+			accepting_refs = FALSE
 			data_to_write = null
 			copy_values = FALSE
+			copy_id = FALSE
 			to_chat(user, "<span class='notice'>You set \the [src]'s memory to absolutely nothing.</span>")
 
 /obj/item/integrated_electronics/debugger/afterattack(atom/target, mob/living/user, proximity)

@@ -938,3 +938,5 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 //Maaaar traits
 #define TRAIT_IN_PHASE_SHIFT "in_phase_shift"
 #define TRAIT_DARK_ENERGY_BLOCKED "dark_energy_regen_blocked"
+/// Трейт для персонажа. Дает +2 к муду.
+#define TRAIT_BIRTHDAY_BOY "birthday_boy"
