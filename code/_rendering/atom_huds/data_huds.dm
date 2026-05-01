@@ -278,7 +278,11 @@
 //HOOKS
 
 /mob/living/carbon/human/proc/sec_hud_set_ID()
+	if(!hud_list || !(ID_HUD in hud_list))
+		return
 	var/image/holder = hud_list[ID_HUD]
+	if(!holder)
+		return
 	if(!icon)
 		return
 	var/icon/I = icon(icon, icon_state, dir)
@@ -565,8 +569,7 @@
 	var/image/holder = hud_list[DIAG_CIRCUIT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else
@@ -576,8 +579,7 @@
 	var/image/holder = hud_list[DIAG_BATT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else if(battery)
@@ -590,8 +592,7 @@
 	var/image/holder = hud_list[DIAG_STAT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground don't show overlay
 		holder.icon_state = null
 	else if(!battery)
@@ -607,8 +608,7 @@
 	var/image/holder = hud_list[DIAG_TRACK_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else if(long_range_circuits)

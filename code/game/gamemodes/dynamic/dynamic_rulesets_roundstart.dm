@@ -109,7 +109,7 @@
 	required_candidates = 1
 	weight = 8 //BLUEMOON CHANGES
 	cost = 15 //BLUEMOON CHANGES
-	required_round_type = list(ROUNDTYPE_DYNAMIC_HARD, ROUNDTYPE_DYNAMIC_MEDIUM, ROUNDTYPE_DYNAMIC_LIGHT) // BLUEMOON ADD
+	required_round_type = list(ROUNDTYPE_DYNAMIC_HARD, ROUNDTYPE_DYNAMIC_MEDIUM) // BLUEMOON ADD
 	scaling_cost = 10
 	requirements = list(101,101,60,50,40,30,20,15,10,10) //BLUEMOON CHANGES
 	antag_cap = 1 //BLUEMOON CHANGES
@@ -552,10 +552,10 @@
 	protected_roles = list("NanoTrasen Representative", "Internal Affairs Agent", "Blueshield", "Peacekeeper", "Brig Physician", "Security Officer", "Warden", "Detective", "Head of Security","Bridge Officer", "Captain", "Head of Personnel", "Quartermaster", "Chief Engineer", "Chief Medical Officer", "Research Director")  //BLUEMOON CHANGES
 	restricted_roles = list("Cyborg", "AI", "Positronic Brain")
 	required_candidates = 3 //BLUEMOON CHANGES
-	weight = 20
-	cost = 15
+	weight = 32
+	cost = 10
 	required_round_type = list(ROUNDTYPE_DYNAMIC_LIGHT) // BLUEMOON ADD
-	requirements = list(0,101,101,101,40,20,20,10,10,10) //BLUEMOON CHANGES
+	requirements = list(101,10,10,10,10,10,10,10,10,10) //BLUEMOON CHANGES
 	flags = HIGH_IMPACT_RULESET
 	antag_cap = list("denominator" = 5, "offset" = 1) //BLUEMOON ADDITION
 	/// A reference to the handler that is used to run pre_execute(), execute(), etc..
@@ -865,7 +865,7 @@ BLUEMOON REMOVAL END*/
 	antag_datum = /datum/antagonist/bloodsucker
 	protected_roles = list("Expeditor", "Prisoner", "Shaft Miner", "NanoTrasen Representative", "Internal Affairs Agent", "Blueshield", "Peacekeeper", "Brig Physician", "Security Officer", "Warden", "Detective", "Head of Security","Bridge Officer", "Captain", "Head of Personnel", "Quartermaster", "Chief Engineer", "Chief Medical Officer", "Research Director")  //BLUEMOON CHANGES
 	restricted_roles = list("Cyborg", "AI", "Positronic Brain")
-	required_round_type = list(ROUNDTYPE_DYNAMIC_LIGHT) // BLUEMOON ADD
+	required_round_type = list(ROUNDTYPE_DYNAMIC_MEDIUM) // BLUEMOON ADD
 	required_candidates = 1
 	weight = 6
 	cost = 5
@@ -1044,38 +1044,37 @@ BLUEMOON REMOVAL END*/
 //////////////////////////////////////////////
 
 /datum/dynamic_ruleset/roundstart/malf
-    name = "Malfunctioning AI"
-    antag_flag = ROLE_MALF
-    antag_datum = /datum/antagonist/traitor
-    minimum_required_age = 0
-    required_candidates = 1
-    exclusive_roles = list("AI")
-    weight = 3
-    cost = 20
-    requirements = list(101,101,101,101,101,101,60,40,30,10)
-    required_round_type = list(ROUNDTYPE_DYNAMIC_TEAMBASED, ROUNDTYPE_DYNAMIC_HARD)
-    flags = HIGH_IMPACT_RULESET
-
-/datum/dynamic_ruleset/roundstart/malf/trim_candidates()
-    ..()
-    for(var/mob/living/player in candidates)
-        if(!isAI(player))
-            candidates -= player
+	name = "Malfunctioning AI"
+	antag_flag = ROLE_MALF
+	antag_datum = /datum/antagonist/traitor
+	minimum_required_age = 0
+	required_candidates = 1
+	exclusive_roles = list("AI")
+	weight = 3
+	cost = 20
+	requirements = list(101,101,101,101,101,101,60,40,30,10)
+	required_round_type = list(ROUNDTYPE_DYNAMIC_TEAMBASED, ROUNDTYPE_DYNAMIC_HARD, ROUNDTYPE_DYNAMIC_MEDIUM)
+	flags = HIGH_IMPACT_RULESET
 
 /datum/dynamic_ruleset/roundstart/malf/pre_execute(population)
-    if(candidates.len <= 0)
-        message_admins("Рулсет [name] не был активирован по причине отсутствия кандидатов.")
-        return FALSE
+	if(candidates.len <= 0)
+		message_admins("Рулсет [name] не был активирован по причине отсутствия кандидатов.")
+		return FALSE
 
-    var/mob/living/silicon/ai/M = pick_n_take(candidates)
-    if(M && M.mind)
-        assigned += M.mind
-        M.mind.special_role = ROLE_MALF
-        return TRUE
-    return FALSE
+	var/mob/dead/new_player/M = pick_n_take(candidates)
+	if(!M?.mind)
+		return FALSE
+
+	if(!SSjob.AssignRole(M, "AI"))
+		message_admins("Рулсет [name] не был активирован по причине невозможности выдать слот AI.")
+		return FALSE
+
+	assigned += M.mind
+	M.mind.special_role = ROLE_MALF
+	return TRUE
 
 /datum/dynamic_ruleset/roundstart/malf/execute()
-    for(var/datum/mind/M in assigned)
-        var/datum/antagonist/traitor/T = new antag_datum()
-        M.add_antag_datum(T)
-    return TRUE
+	for(var/datum/mind/M in assigned)
+		var/datum/antagonist/traitor/T = new antag_datum()
+		M.add_antag_datum(T)
+	return TRUE
