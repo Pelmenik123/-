@@ -53,6 +53,11 @@ export type VoreSoundData = {
   sound_name : string,
 };
 
+export type TransferRule = {
+	rule_name : string,
+	whitelist_status : BooleanLike,
+};
+
 export type MyBelly = {
     my_belly_contents : my_belly_contents[],
     dm_mode : BellyMode,
@@ -61,6 +66,7 @@ export type MyBelly = {
     dm_main_descs : MyModeDescData[],
     auto_transfer_time : number,
     auto_transfer_chance : number,
+	transfer_rules : TransferRule[],
     damages_data : DamageData[],
     vore_sounds : VoreSoundData[]
 
