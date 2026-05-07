@@ -104,6 +104,13 @@
 	var/patrol_emote = "Включение режима патруля."
 	var/patrol_fail_emote = "Невозможно начать патруль."
 
+	var/spawner_name = "Неизвестный бот"
+	var/spawner_flavor_text = "Неизвестное описание"
+	var/spawner_important_info = "СЛЕДУЙ ЦЕЛЯМ ОБОЛОЧКИ УЕБАН"
+	var/spawner_category = "Robots"
+
+	var/list/banTypes = list(ROLE_PAI, ROLE_DRONE, ROLE_GHOSTROLE)
+
 /mob/living/simple_animal/bot/proc/set_commissioned(new_value)
 	if(commissioned == new_value)
 		return
@@ -188,6 +195,8 @@
 		path_hud.add_to_hud(src)
 		path_hud.add_hud_to(src)
 
+	LAZYOR(GLOB.mob_spawners, src)
+
 /mob/living/simple_animal/bot/update_mobility()
 	. = ..()
 	if(!on)
@@ -205,7 +214,24 @@
 	QDEL_NULL(Radio)
 	QDEL_NULL(access_card)
 	QDEL_NULL(bot_core)
+
+	LAZYREMOVE(GLOB.mob_spawners, src)
 	return ..()
+
+/mob/living/simple_animal/bot/attack_ghost(mob/user)
+	if(paicard)
+		. = ..()
+
+	if(QDELETED(src) || QDELETED(user))
+		return ..()
+
+	if(tgui_alert(user, "Вы уверены что хотите зайти за [src]?", "Тебе дали выбор смертный", "Да", "Нет") == "Нет")
+		to_chat(user,span_info("Больно и надо..."))
+		return
+
+	ckey = user.ckey
+
+
 
 /mob/living/simple_animal/bot/bee_friendly()
 	return TRUE
@@ -928,6 +954,7 @@ Pass a positive integer as an argument to override a bot's default speed.
 			if(card.pai && card.pai.mind)
 				if(!user.transferItemToLoc(card, src))
 					return
+				LAZYREMOVE(GLOB.mob_spawners, src)
 				paicard = card
 				user.visible_message("[user] inserts [card] into [src]!","<span class='notice'>You insert [card] into [src].</span>")
 				paicard.pai.mind.transfer_to(src)
@@ -963,6 +990,7 @@ Pass a positive integer as an argument to override a bot's default speed.
 		paicard = null
 		name = bot_name
 		faction = initial(faction)
+		LAZYOR(GLOB.mob_spawners, src)
 
 /mob/living/simple_animal/bot/proc/ejectpairemote(mob/user)
 	if(bot_core.allowed(user) && paicard)
